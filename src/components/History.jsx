@@ -27,13 +27,11 @@ function History({ userUID }) {
     return () => unsubscribe()
   }, [userUID])
 
-  // --- Open receipt popup for a selected transaction ---
   const handleOpenReceipt = (transaction) => {
     setSelectedTransaction(transaction)
     setShowReceipt(true)
   }
 
-  // --- Close receipt ---
   const handleCloseReceipt = () => {
     setShowReceipt(false)
     setSelectedTransaction(null)
@@ -95,14 +93,16 @@ function History({ userUID }) {
         </div>
       )}
 
-      {/* Receipt popup using the same style as Payment */}
+      {/* Receipt popup */}
       {selectedTransaction && (
         <Receipt
           isOpen={showReceipt}
           onClose={handleCloseReceipt}
-          cartItems={selectedTransaction.items || []} // list of items
-          totalPrice={selectedTransaction.amount || 0}
+          cartItems={selectedTransaction.items || []}
+          totalPrice={selectedTransaction.amount || 0}        // already discounted
           paymentMethod={selectedTransaction.method || "Unknown"}
+          voucherCode={selectedTransaction.voucher || null}   // voucher used
+          discountAmount={selectedTransaction.discount || 0}   // voucher value
           day={selectedTransaction.day}
           date={selectedTransaction.date}
           time={selectedTransaction.time}

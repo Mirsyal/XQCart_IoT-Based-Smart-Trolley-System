@@ -271,20 +271,21 @@ function Settings() {
           <div
             style={{
               backgroundColor: "#fff",
-              borderRadius: "20px",
-              padding: "20px",
-              maxWidth: "360px",
-              width: "90%",  // shrink modal on mobile
-              boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+              borderRadius: "16px",
+              padding: "15px",
+              maxWidth: "320px",
+              width: "95%",  // tighter on small screens
+              boxShadow: "0 6px 15px rgba(0,0,0,0.2)",
               textAlign: "center",
+              fontSize: "14px", // slightly smaller text
             }}
           >
             {!deletionSuccess ? (
               <>
-                <h3 style={{ marginBottom: "10px", fontSize: "20px", fontWeight: 600, color: "#950606" }}>
+                <h3 style={{ marginBottom: "8px", fontSize: "18px", fontWeight: 600, color: "#950606" }}>
                   Confirm Account Deletion
                 </h3>
-                <p style={{ marginBottom: "15px", fontSize: "14px", color: "#444" }}>
+                <p style={{ marginBottom: "12px", fontSize: "13px", color: "#444" }}>
                   Type <strong>xqcart</strong> to confirm:
                 </p>
                 <input
@@ -292,29 +293,29 @@ function Settings() {
                   value={confirmInput}
                   onChange={(e) => setConfirmInput(e.target.value)}
                   style={{
-                    width: "80%",
-                    padding: "10px 12px",
-                    borderRadius: "12px",
+                    width: "90%",
+                    padding: "8px 10px",
+                    borderRadius: "10px",
                     border: "1px solid #ccc",
-                    marginBottom: "12px",
+                    marginBottom: "10px",
                     textAlign: "center",
-                    fontSize: "14px",
+                    fontSize: "13px",
                   }}
                 />
-                {errorMessage && <div style={{ color: "#ff3b30", marginBottom: "12px", fontSize: "13px" }}>{errorMessage}</div>}
-                <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
+                {errorMessage && <div style={{ color: "#ff3b30", marginBottom: "10px", fontSize: "12px" }}>{errorMessage}</div>}
+                <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
                   <button
                     onClick={handleConfirmDelete}
                     style={{
-                      flex: "1 1 120px",
-                      padding: "10px 0",
-                      borderRadius: "12px",
+                      flex: "1 1 100px",
+                      padding: "8px 0",
+                      borderRadius: "10px",
                       border: "none",
                       backgroundColor: "#ff3b30",
                       color: "white",
                       fontWeight: 600,
                       cursor: "pointer",
-                      fontSize: "14px",
+                      fontSize: "13px",
                     }}
                   >
                     Confirm
@@ -322,14 +323,14 @@ function Settings() {
                   <button
                     onClick={handleCancel}
                     style={{
-                      flex: "1 1 120px",
-                      padding: "10px 0",
-                      borderRadius: "12px",
+                      flex: "1 1 100px",
+                      padding: "8px 0",
+                      borderRadius: "10px",
                       border: "1px solid #ccc",
                       backgroundColor: "white",
                       color: "#333",
                       cursor: "pointer",
-                      fontSize: "14px",
+                      fontSize: "13px",
                     }}
                   >
                     Cancel
@@ -338,8 +339,8 @@ function Settings() {
               </>
             ) : (
               <div>
-                <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#333" }}>Account Deleted!</h3>
-                <p style={{ fontSize: "14px", color: "#555" }}>Your account has been removed successfully.</p>
+                <h3 style={{ fontSize: "18px", fontWeight: 600, color: "#333" }}>Account Deleted!</h3>
+                <p style={{ fontSize: "13px", color: "#555" }}>Your account has been removed successfully.</p>
               </div>
             )}
           </div>

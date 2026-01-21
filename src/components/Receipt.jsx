@@ -7,24 +7,28 @@ import { useRef } from "react"
 function Receipt({
   isOpen,
   onClose,
-  cartItems,
-  totalPrice,
+  cartItems = [],
+  totalPrice = 0,       // already final amount after voucher
   paymentMethod = "Unknown",
-  timestamp = null, // exact transaction time in ms
+  voucherCode = null,   // voucher used
+  discountAmount = 0,   // voucher value
+  day = null,
+  date = null,
+  time = null,
+  timestamp = null
 }) {
   const pdfRef = useRef(null)
 
   if (!isOpen) return null
 
-  // --- Format date/time exactly like Payment.jsx ---
+  // --- Format date/time if not provided ---
   const dateObj = timestamp ? new Date(timestamp) : new Date()
-  const day = dateObj.toLocaleDateString("en-US", { weekday: "long" }) // e.g., Monday
-  const date = dateObj.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) // e.g., Jan 19, 2026
-  const time = dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) // e.g., 05:06 AM
+  const dayStr = day || dateObj.toLocaleDateString("en-US", { weekday: "long" })
+  const dateStr = date || dateObj.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+  const timeStr = time || dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
 
   const handleDownload = async () => {
     if (!pdfRef.current) return
-
     const canvas = await html2canvas(pdfRef.current, { scale: 2 })
     const imgData = canvas.toDataURL("image/png")
 
@@ -52,7 +56,7 @@ function Receipt({
           <div className="receipt-info" style={{ marginBottom: "12px", textAlign: "center" }}>
             <div style={{ fontWeight: 500 }}>{paymentMethod}</div>
             <div style={{ fontSize: "13px", color: "#777", marginTop: "2px" }}>
-              {day}, {date} • {time}
+              {dayStr}, {dateStr} • {timeStr}
             </div>
           </div>
 
@@ -64,12 +68,21 @@ function Receipt({
                 <span className="item-price">RM {item.price.toFixed(2)}</span>
               </div>
             ))}
+
+            {/* Voucher line */}
+            {voucherCode && discountAmount > 0 && (
+              <div className="receipt-row">
+                <span>Voucher ({voucherCode})</span>
+                <span>- RM {discountAmount.toFixed(2)}</span>
+              </div>
+            )}
           </div>
 
           <div className="receipt-divider" />
 
+          {/* Total */}
           <div className="receipt-total">
-            <span>Total</span>
+            <span>Final Total</span>
             <span>RM {totalPrice.toFixed(2)}</span>
           </div>
 
@@ -79,7 +92,7 @@ function Receipt({
         </div>
       </div>
 
-      {/* Hidden PDF layout (exactly same as Payment) */}
+      {/* Hidden PDF layout */}
       <div
         ref={pdfRef}
         style={{
@@ -96,7 +109,7 @@ function Receipt({
         <h3 style={{ textAlign: "center", marginBottom: "4px" }}>XQCart</h3>
         <p style={{ textAlign: "center", fontSize: "11px", margin: "2px 0" }}>{paymentMethod}</p>
         <p style={{ textAlign: "center", fontSize: "11px", margin: "2px 0" }}>
-          {day}, {date} • {time}
+          {dayStr}, {dateStr} • {timeStr}
         </p>
 
         <hr />
@@ -116,6 +129,13 @@ function Receipt({
           </div>
         ))}
 
+        {voucherCode && discountAmount > 0 && (
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", margin: "4px 0" }}>
+            <span>Voucher ({voucherCode})</span>
+            <span>- RM {discountAmount.toFixed(2)}</span>
+          </div>
+        )}
+
         <hr />
 
         <div
@@ -127,7 +147,7 @@ function Receipt({
             marginTop: "6px",
           }}
         >
-          <span>Total</span>
+          <span>Final Total</span>
           <span>RM {totalPrice.toFixed(2)}</span>
         </div>
 

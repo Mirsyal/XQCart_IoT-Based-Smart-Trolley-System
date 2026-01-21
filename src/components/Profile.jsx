@@ -300,16 +300,20 @@ function Profile() {
           left: "50%",
           transform: "translateX(-50%)",
 
-          padding: "12px 20px",
+          padding: "12px 16px",
           borderRadius: "12px",
           backgroundColor: toastMessage.includes("successfully") ? "#28a745" : "#dc3545",
           color: "white",
           fontSize: "14px",
           fontWeight: 500,
 
-          minWidth: "280px",    // longer default width on mobile
-          maxWidth: "90vw",     // responsive to screen size
+          width: "95vw",       // nearly full width on mobile
+          maxWidth: "500px",   // limit width for bigger screens
           textAlign: "center",
+          boxSizing: "border-box", // include padding in width
+          whiteSpace: "nowrap",     // prevent wrapping
+          overflow: "hidden",
+          textOverflow: "ellipsis",
 
           boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           transition: "bottom 0.5s ease-in-out",
