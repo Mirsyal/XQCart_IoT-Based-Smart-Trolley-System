@@ -2,6 +2,7 @@ import { useState } from "react"
 import { db, auth } from "../firebase.js"
 import { ref, set, get } from "firebase/database"
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { sendPasswordResetEmail } from "firebase/auth"
 
 function Login({ onLogin }) {
   const [isRegister, setIsRegister] = useState(false)
@@ -10,14 +11,64 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+  const [requiredError, setRequiredError] = useState("")
   const [hover, setHover] = useState(false)
   const [hoverLink, setHoverLink] = useState(false)
   const [pressed, setPressed] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [resetMessage, setResetMessage] = useState("")
+  const [hoverForgot, setHoverForgot] = useState(false)
+
+  const [missing, setMissing] = useState({
+    username: false,
+    email: false,
+    password: false,
+  })
+
+  // --- password strength states (minimal additions) ---
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, label: "Weak", color: "red" })
+  const [showStrengthBar, setShowStrengthBar] = useState(false)
+  // --------------------------------------------------------
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setResetMessage("Please enter your email first")
+      return
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email)
+      setResetMessage("Password reset email sent! Check your inbox.")
+    } catch (err) {
+      if (err.code === "auth/user-not-found") {
+        setResetMessage("No account found with this email")
+      } else if (err.code === "auth/invalid-email") {
+        setResetMessage("Invalid email format")
+      } else {
+        setResetMessage("Failed to send reset email")
+      }
+    }
+  }
 
   const handleSubmit = async () => {
     setError("")
+    setRequiredError("")
+
+    const newMissing = {
+      username: isRegister && username.trim() === "",
+      email: email.trim() === "",
+      password: password.trim() === "",
+    }
+
+    setMissing(newMissing)
+
+    if (newMissing.username || newMissing.email || newMissing.password) {
+      setRequiredError("Required to enter.")
+      return
+    }
+
     setLoading(true)
+
     try {
       if (isRegister) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
@@ -35,22 +86,62 @@ function Login({ onLogin }) {
           onLogin(user.email)
         }
       }
-    } catch {
-      setError("Invalid login or account does not exist!")
+    } catch (err) {
+      if (isRegister) {
+        if (err.code === "auth/email-already-in-use") {
+          setError("This email is already registered")
+        } else {
+          setError("Invalid registration")
+        }
+      } else {
+        // Login
+        if (err.code === "auth/user-not-found") {
+          setError("Account does not exist")
+        } else if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+          setError("Incorrect email or password")
+        } else {
+          setError("Invalid login")
+        }
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  const inputStyle = {
+  const inputStyle = hasError => ({
     width: "100%",
     maxWidth: "260px",
     padding: "8px",
     marginBottom: "8px",
     borderRadius: "10px",
-    border: "1px solid #ddd",
+    border: hasError ? "2px solid red" : "1px solid #ddd",
     boxSizing: "border-box"
+  })
+
+  // --- password strength calculation ---
+  const calculatePasswordStrength = (pw) => {
+    let score = 0
+    if (!pw) return { score: 0, label: "Weak", color: "red" }
+
+    if (pw.length >= 6) score++
+    if (pw.length >= 10) score++
+    if (/[A-Z]/.test(pw)) score++
+    if (/[0-9]/.test(pw)) score++
+    if (/[^A-Za-z0-9]/.test(pw)) score++
+
+    let label = "Weak", color = "red"
+    if (score <= 2) { label = "Weak"; color = "red" }
+    else if (score <= 4) { label = "Medium"; color = "orange" }
+    else { label = "Strong"; color = "green" }
+
+    return { score, label, color }
   }
+
+  const handlePasswordChange = (value) => {
+    setPassword(value)
+    setPasswordStrength(calculatePasswordStrength(value))
+  }
+  // --------------------------------------------------------
 
   return (
     <div
@@ -141,11 +232,7 @@ function Login({ onLogin }) {
           <img
             src="/xqcart_icon.png"
             alt="XQCart Logo"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover"
-            }}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>
 
@@ -172,44 +259,111 @@ function Login({ onLogin }) {
             placeholder="Username"
             value={username}
             onChange={e => setUsername(e.target.value)}
-            style={inputStyle}
+            style={inputStyle(missing.username)}
           />
         )}
 
         <input
-          placeholder="Email"
+          placeholder="Email@gmail.com"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          style={inputStyle}
+          style={inputStyle(missing.email)}
         />
 
-        <div style={{ position: "relative", width: "100%", maxWidth: "260px", margin: "0 auto 8px auto" }}>
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            style={{ ...inputStyle, paddingRight: "35px" }}
-          />
-          <span
-            onClick={() => setShowPassword(!showPassword)}
-            style={{
-              position: "absolute",
-              right: "8px",
-              top: "48%",
-              transform: "translateY(-50%)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center"
-            }}
-          >
-            <img
-              src={showPassword ? "/eyeopen.png" : "/eyeclose.png"}
-              alt="toggle"
-              style={{ width: "16px", height: "16px" }}
+        <div style={{ width: "100%", maxWidth: "260px", margin: "0 auto 8px auto" }}>
+
+          {/* input + eye icon container (height never changes) */}
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={e => isRegister ? handlePasswordChange(e.target.value) : setPassword(e.target.value)}
+              onFocus={() => { if (isRegister) setShowStrengthBar(true) }}
+              onBlur={() => { if (isRegister && !password) setShowStrengthBar(false) }}
+              style={{ ...inputStyle(missing.password), paddingRight: "35px" }}
             />
-          </span>
+
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: "8px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center"
+              }}
+            >
+              <img
+                src={showPassword ? "/eyeopen.png" : "/eyeclose.png"}
+                alt="toggle"
+                style={{ width: "16px", height: "16px" }}
+              />
+            </span>
+          </div>
+
+          {/* Strength bar */}
+          {isRegister && showStrengthBar && (
+            <div style={{ display: "flex", alignItems: "center", marginTop: "6px" }}>
+              <div
+                style={{
+                  height: "6px",
+                  flex: 1,
+                  borderRadius: "3px",
+                  backgroundColor: "#eee",
+                  marginRight: "10px",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${(passwordStrength.score / 5) * 100}%`,
+                    height: "100%",
+                    backgroundColor: passwordStrength.color,
+                    transition: "width 0.3s",
+                  }}
+                />
+              </div>
+              <span style={{ fontSize: "12px", fontWeight: "500", color: passwordStrength.color }}>
+                {passwordStrength.label}
+              </span>
+            </div>
+          )}
+
+          {/* --- Forgot Password Link & Message (Login mode only) --- */}
+          {!isRegister && (
+            <>
+              <p
+                onMouseEnter={() => setHoverForgot(true)}
+                onMouseLeave={() => setHoverForgot(false)}
+                onClick={handleForgotPassword}
+                style={{
+                  fontSize: "12px",
+                  color: "#888",
+                  cursor: "pointer",
+                  marginTop: "6px",
+                  textDecoration: hoverForgot ? "underline" : "none"
+                }}
+              >
+                Forgot Password?
+              </p>
+
+              {resetMessage && (
+                <p style={{ color: "brown", fontSize: "13px", marginTop: "4px", whiteSpace: "pre-line" }}>
+                  {"Password reset email sent!\nCheck your inbox."}
+                </p>
+              )}
+            </>
+          )}
         </div>
+
+        {requiredError && (
+          <p style={{ color: "red", fontSize: "13px", marginBottom: "6px" }}>
+            {requiredError}
+          </p>
+        )}
 
         {error && (
           <p style={{ color: "red", fontSize: "13px", marginBottom: "8px" }}>
@@ -243,14 +397,21 @@ function Login({ onLogin }) {
         <p
           onMouseEnter={() => setHoverLink(true)}
           onMouseLeave={() => setHoverLink(false)}
-          onClick={() => { setIsRegister(!isRegister); setError("") }}
+          onClick={() => {
+            setIsRegister(!isRegister)
+            setError("")
+            setRequiredError("")
+            setMissing({ username: false, email: false, password: false })
+            // reset password strength when switching modes
+            setPasswordStrength({ score: 0, label: "Weak", color: "red" })
+            setShowStrengthBar(false)
+          }}
           style={{
             fontSize: "12px",
             marginTop: "12px",
             color: "#888",
             cursor: "pointer",
-            textDecoration: hoverLink ? "underline" : "none",
-            transition: "text-decoration 0.2s ease"
+            textDecoration: hoverLink ? "underline" : "none"
           }}
         >
           {isRegister ? "Already have an account? Login" : "Register here"}
