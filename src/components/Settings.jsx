@@ -274,7 +274,7 @@ function Settings() {
               borderRadius: "20px",
               padding: "20px",
               maxWidth: "360px",
-              width: "100%",
+              width: "90%",  // shrink modal on mobile
               boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
               textAlign: "center",
             }}

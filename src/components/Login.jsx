@@ -38,7 +38,7 @@ function Login({ onLogin }) {
 
     try {
       await sendPasswordResetEmail(auth, email)
-      setResetMessage("Password reset email sent! Check your inbox.")
+      setResetMessage("Password reset email sent!\nCheck your inbox.")
     } catch (err) {
       if (err.code === "auth/user-not-found") {
         setResetMessage("No account found with this email")
@@ -350,11 +350,11 @@ function Login({ onLogin }) {
                 Forgot Password?
               </p>
 
-              {resetMessage && (
-                <p style={{ color: "brown", fontSize: "13px", marginTop: "4px", whiteSpace: "pre-line" }}>
-                  {"Password reset email sent!\nCheck your inbox."}
-                </p>
-              )}
+            {resetMessage && (
+              <p style={{ color: resetMessage.includes("sent") ? "green" : "brown", fontSize: "13px", marginTop: "4px", whiteSpace: "pre-line" }}>
+                {resetMessage}
+              </p>
+            )}
             </>
           )}
         </div>

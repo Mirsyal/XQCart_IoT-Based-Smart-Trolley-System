@@ -299,11 +299,18 @@ function Profile() {
           bottom: showToast ? "80px" : "-100px",
           left: "50%",
           transform: "translateX(-50%)",
+
           padding: "12px 20px",
-          borderRadius: "8px",
+          borderRadius: "12px",
           backgroundColor: toastMessage.includes("successfully") ? "#28a745" : "#dc3545",
           color: "white",
           fontSize: "14px",
+          fontWeight: 500,
+
+          minWidth: "280px",    // longer default width on mobile
+          maxWidth: "90vw",     // responsive to screen size
+          textAlign: "center",
+
           boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           transition: "bottom 0.5s ease-in-out",
           zIndex: 1000,
