@@ -17,14 +17,6 @@ function Home({ user, userUID, total, setTotal, onLogout }) {
 
   const navigate = useNavigate();
 
-  // Add these states at the top
-  const [voucherCode, setVoucherCode] = useState("");
-  const [discount, setDiscount] = useState(0);
-
-  // Update total including discount
-  const totalWithDiscount = Math.max(total - discount, 0);
-
-
   // --- Load all products once and cache ---
   useEffect(() => {
     const productsRef = ref(db, "products");
