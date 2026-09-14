@@ -23,7 +23,7 @@ The smart trolley uses an **ESP32-based IoT controller and RFID technology** to 
 ## 🧩 How It Works
 
 ```text
-                    Physical Smart Trolley
+                    Smart Trolley Prototype
                             │
                             ▼
                       RFID Reader
@@ -191,7 +191,7 @@ The `tags` and `products` paths are particularly important for the RFID-to-produ
 * Node.js
 * npm
 * Firebase project
-* ESP32 development environment *(for the physical trolley)*
+* ESP32 development environment *(for the prototype trolley)*
 
 ### Web Application
 
@@ -224,7 +224,7 @@ The ESP32 firmware is maintained separately from this React web application repo
 
 This repository primarily contains the **React web application and Firebase integration**.
 
-The physical trolley uses an **ESP32 and RFID hardware**, with firmware developed using **Arduino IDE**. The ESP32 firmware and hardware wiring are maintained separately and are not included in this repository.
+The prototype trolley uses an **ESP32 and RFID hardware**, with firmware developed using **Arduino IDE**. The ESP32 firmware and hardware wiring are maintained separately and are not included in this repository.
 
 The payment interface currently records the selected payment method but **does not process real financial transactions**.
 
