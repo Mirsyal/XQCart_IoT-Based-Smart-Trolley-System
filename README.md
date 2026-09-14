@@ -2,7 +2,7 @@
 
 **XQCart** is a **React-based IoT smart trolley application** that combines **ESP32, RFID, Arduino IDE, Firebase, and React** to automatically identify products and manage a shopper's cart in real time.
 
-The physical smart trolley uses an **ESP32-based IoT controller and RFID technology** to detect products. The detected RFID tag data is transmitted to **Firebase Realtime Database**, which acts as the communication bridge between the trolley and the React web application.
+The smart trolley uses an **ESP32-based IoT controller and RFID technology** to detect products. The detected RFID tag data is transmitted to **Firebase Realtime Database**, which acts as the communication bridge between the trolley and the React web application.
 
 ---
 
